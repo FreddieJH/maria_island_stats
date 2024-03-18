@@ -54,6 +54,14 @@ clean_data <-
   resp_vars_clean %>% 
   left_join(pred_vars_clean, by = "Sample")
 
+# Data checking ===============================================================
+
+glimpse(clean_data)
+
+
+# clean_data <- clean_data %>% mutate(x = as.numeric(x)) # to dbl
+# clean_data <- clean_data %>% mutate(x = as.character(x)) # to chr
+
 # Data visualisation ===========================================================
 
 # Numerical vs numerical plot
@@ -76,7 +84,7 @@ clean_data %>%
   summarise(richness_mean = mean(Richness, na.rm = TRUE), 
             richness_sd = sd(Richness, na.rm = TRUE), 
             n = n(),
-            .by = MPA) %>% 
+            .by = MPA) %>% # .by is used to define the grouping variable 
   mutate(richness_se = richness_sd/sqrt(n)) %>% 
   ggplot() + 
   aes(
@@ -100,7 +108,7 @@ clean_data %>%
             n = n(),
             .by = MPA) %>% 
   mutate(abundance_se = abundance_sd/sqrt(n),
-         ci = abundance_se*qt((1-alpha)/2 + .5, n-1)) %>% 
+         ci = abundance_se*1.96) %>% 
   ggplot() + 
   aes(
     x = MPA, 
@@ -140,6 +148,9 @@ clean_data %>%
 
 # Linear modelling =============================================================
 
+# Either transform to make normal or choose distribution family (e.g. poisson)
+# Poisson is used for count data (i.e., non-negative, non-decimal)
+
 glm1 <- 
   glm(formula = Richness ~ MPA, 
       data = clean_data, 
@@ -174,12 +185,18 @@ exp(5.61)
 exp(5.61 + 1*-0.25056) # reserve = TRUE
 exp(5.61 + 0*-0.25056) # reserve = FALSE
 
-
 # Choosing the family
-"poisson" # count data (e.g. number of species)
-"gaussian" # normally distributed data
-"binomial" # yes/no, true/false, 0/1 type data
+"poisson" # count data (e.g. number of species), default: link = "log"
+"gaussian" # normally distributed data, default: link = "identity" (no trans.)
+"binomial" # yes/no, true/false, 0/1 type data, default: link = "logit" (logistic)
 
+# Model for abundance (assuming normal dist)
+glm3_v2 <- 
+  glm(formula = N ~ MPA, 
+      data = clean_data, 
+      family = "gaussian") 
+
+summary(glm3_v2)
 
 # Numerical predictor
 glm4 <- 
@@ -191,17 +208,16 @@ summary(glm4)
 
 # Figures ======================================================================
 
-# Calculation of confidence itervals
-# If normally distribution (guassian) its easy
+# Calculation of confidence intervals
+# If normally distribution (Gaussian) its easy
 # Otherwise a bit more complex
 # https://stackoverflow.com/questions/40985366/prediction-of-poisson-regression
 
 # Normal: CI = mean + 1.96*(sd/sqrt(n))
 # Poission: CI = inverse_link_function(mean + 1.96*(sd/sqrt(n)))
 
-
 # Categorical
-glm3_inverse_func <- glm3$family$linkinv
+glm3_inverse_func <- glm3$family$linkinv # back-transformation
 mod_out <- 
   tibble(MPA = c("Reserve", "Fished")) %>% 
   mutate(pred_trans = predict(glm3, newdata = list(MPA = MPA), type = "link", se.fit=TRUE)$fit, 
@@ -232,9 +248,9 @@ clean_data %>%
   ) +
   theme_bw()
 
-# Good article on Error bars
+# Good article on Error bars 
+# overlapping CI bars != significance
 # https://www.nature.com/articles/nmeth.2659
-
 
 # Two numerical values
 clean_data %>% 
@@ -246,14 +262,14 @@ clean_data %>%
   ) +
   geom_point()  + 
   geom_line(aes(y = pred_n), col = "red") +
-  stat_smooth(se = TRUE) + # smoothed trend line? standard error?
+  # stat_smooth(se = TRUE) + # smoothed trend line? standard error?
   labs(
-    x = "Visibility (m)",
+    x = "Depth (m)",
     y = "Abundance (# individuals)"
   ) +
   theme_bw() # themes from https://ggplot2.tidyverse.org/reference/ggtheme.html
 
-glm4_inverse_func <- glm4$family$linkinv
+glm4_inverse_func <- glm4$family$linkinv # for poisson, this function is exp()
 
 clean_data %>% 
   mutate(pred_trans = predict(glm4, newdata = clean_data, type = "link", se.fit=TRUE)$fit, 

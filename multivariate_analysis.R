@@ -59,10 +59,11 @@ pred_vars_clean <-
 
 # Data visualisation ===========================================================
 
+# convert to a numeric matrix
 abundance_matrix <- 
   resp_vars_clean %>% 
   # mutate_if(is.numeric, log1p) %>% # log(x+1) transformation
-  column_to_rownames("sample") %>% 
+  column_to_rownames("sample") %>% # cannot have chr col (move to rownames)
   as.matrix() 
 
 # Calculating distance
@@ -71,15 +72,17 @@ distance_matrix <-
   abundance_matrix %>% 
   vegdist(method = "bray")
 
-set.seed(1)
+set.seed(1) # so gives same result each time (because nmds includes randomness)
 nmds <- metaMDS(distance_matrix)
-# stress = 0.1519975 
+# stress = 0.1518329 
 
+# data for plotting
 nmds_vals <- 
-  scores(nMDS) %>% 
+  scores(nmds) %>% 
   as_tibble(rownames = "sample") %>% 
-  left_join(pred_vars_clean, by = join_by(sample))
+  left_join(pred_vars_clean, by = join_by(sample)) # adding predictor vars here
 
+# calculate centroids of data
 elps_center <- 
   nmds_vals %>% 
   summarise(NMDS1 = mean(NMDS1), 
@@ -96,7 +99,7 @@ nmds_vals %>%
   geom_point(
     # aes(pch = as.character(Depth)) # change shape of point
   ) +
-  stat_ellipse() +
+  stat_ellipse(level = 0.9) + # adds ellipses (level default = 0.95)
   geom_point(data = elps_center, size = 5)
 
 # Detecting statistical difference =============================================
@@ -114,22 +117,19 @@ adonis2(formula = distance_matrix ~ nmds_vals$MPA) # no sig effect of MPA
 adonis2(formula = distance_matrix ~ nmds_vals$MPA + nmds_vals$vis) 
 
 
-# Adding environemtnal vars or significant species =============================
+# Adding environmental vars or significant species =============================
 
-pred_vars_clean %>% 
-  column_to_rownames("sample")
+# adding arrows (vectors) to the NMDS plot
+# Can be enviro vars (e.g. depth) or can be species abundance (E.g. Species A)
 
-env <- envfit(nmds, pred_vars_clean %>% column_to_rownames("sample"), na.rm = TRUE)
-env <- envfit(nmds, resp_vars_clean %>% column_to_rownames("sample"), na.rm = TRUE)
-plot(nmds)
-plot(env)
+vec_env <- envfit(nmds, pred_vars_clean %>% column_to_rownames("sample"), na.rm = TRUE)
+vec_spp <- envfit(nmds, resp_vars_clean %>% column_to_rownames("sample"), na.rm = TRUE)
 
-vectors <- 
-scores(env, display = "vectors") %>% 
+sig_vectors <- 
+  scores(vec_env, display = "vectors") %>% 
   as_tibble(rownames = "species") %>% 
-  mutate(pval = env$vectors$pvals) %>% 
+  mutate(pval = vec_env$vectors$pvals) %>% 
   filter(pval < 0.05)
-
 
 nmds_vals %>% 
   ggplot() +
@@ -139,13 +139,13 @@ nmds_vals %>%
   geom_point(aes(col = MPA)) +
   geom_segment(
     aes(
-    x = 0, 
-    y = 0, 
-    xend = NMDS1,
-    yend = NMDS2
-  ),
-  data = sig_vectors, 
-  arrow = arrow(length = unit(0.25, "cm"))) +
+      x = 0, 
+      y = 0, 
+      xend = NMDS1,
+      yend = NMDS2
+    ),
+    data = sig_vectors, 
+    arrow = arrow(length = unit(0.25, "cm"))) +
   ggrepel::geom_text_repel(data = sig_vectors,
                            aes(label = species), 
                            cex = 5, 
