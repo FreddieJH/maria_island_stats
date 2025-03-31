@@ -9,3 +9,7 @@ How to run:
 - Open the R Project file (maria_island_stats.Rproj)
 
 - Run code!
+
+
+Presentation slides can be viewed by downloading the presentation.html file, or at: 
+https://html-preview.github.io/?url=https://github.com/FreddieJH/maria_island_stats/blob/main/presentation.html#/consideration-of-statistics
