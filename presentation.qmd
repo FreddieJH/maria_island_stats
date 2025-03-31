@@ -107,13 +107,13 @@ For each hypothesis, will you be considering univariate or multivariate analyses
 
 ![](plots.png){fig-align="center"}
 
----
+
 
 # Example hypothesis
 
 > *Greater fish biomass inside than outside an MPA*
 
----
+
 
 ## Input data
 
@@ -200,7 +200,7 @@ ggplot(summary_data, aes(x = MPA, y = mean_biomass)) +
 
 # Example hypothesis 2
 
-> *MPA status significantlt alters the ecological community*
+> *MPA status significantly alters the ecological community*
 
 ---
 
