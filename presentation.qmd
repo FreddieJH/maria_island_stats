@@ -260,11 +260,10 @@ nmds_plot <-
   theme_minimal() +
   labs(x = "NMDS1", y = "NMDS2", title = "Non-Metric Multidimensional Scaling (NMDS)")
 
-library(patchwork)
-bar_plot + nmds_plot
 ```
 
 ```{r}
+library(patchwork)
 bar_plot + nmds_plot
 ```
 
