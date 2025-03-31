@@ -29,7 +29,11 @@ library(ggrepel)
 # Import =======================================================================
 
 resp_vars <- read_csv("multivariate_response_vars.csv") 
-pred_vars <- read_csv("predictor_table.csv")
+pred_vars <- 
+  read_csv("predictor_table.csv") %>% 
+  # creating false values for KELP and Complexity for example purposes
+  mutate(Kelp = sample(1:4, replace = TRUE, size = nrow(.)), 
+         Complexity = sample(1:4, replace = TRUE, size = nrow(.)))
 
 # Data checking ================================================================
 
@@ -50,7 +54,7 @@ resp_vars_clean <-
 # mutate_all: replace ALL the NA values with zero
 resp_vars_clean <- 
   resp_vars %>% 
-  mutate_all(.funs = replace_na, replace = 0) 
+  mutate_all(.funs = replace_na, replace = 0)
 
 pred_vars_clean <- 
   pred_vars %>% 
@@ -74,7 +78,7 @@ distance_matrix <-
 
 set.seed(1) # so gives same result each time (because nmds includes randomness)
 nmds <- metaMDS(distance_matrix)
-# stress = approx 0.1518329 
+# stress = approx 0.15
 
 # data for plotting
 nmds_vals <- 

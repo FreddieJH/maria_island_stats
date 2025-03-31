@@ -170,7 +170,7 @@ ggplot(summary_data, aes(x = MPA, y = mean_biomass)) +
 
 ```
 
-## Some statistical method 
+## Error bars  
 
 ```{r}
 
@@ -184,10 +184,11 @@ ggplot(summary_data, aes(x = MPA, y = mean_biomass)) +
   geom_text(aes(x = 1.5, y = y_line, label = "***"), size = 6, data = tibble()) +
   theme_classic() +
   labs(y = "Mean site biomass")
+
 ```
 
 
-## Consideration of statistics
+## Univar statistics
 
 - What statistical test would you use to test this hypothesis?
 - Univariate data (I am estimating biomass) - 
@@ -209,14 +210,15 @@ ggplot(summary_data, aes(x = MPA, y = mean_biomass)) +
 
 ---
 
-## Data visualisation
+## Multivar data visualisation
 
 ```{r}
 #| echo: false
-# Set seed for reproducibility
+
+library(vegan)
+
 set.seed(123)
 
-# Fake species composition data (7 samples, 6 species)
 species_data <- data.frame(
   Sample = paste0("S", 1:10),
   Species1 = sample(10:50, 10, replace = TRUE),
@@ -227,30 +229,29 @@ species_data <- data.frame(
   Species6 = sample(15:60, 10, replace = TRUE)
 )
 
-# Convert to percentage composition
-species_percent <- species_data %>%
+species_percent <- 
+  species_data %>%
   pivot_longer(cols = -Sample, names_to = "Species", values_to = "Abundance") %>%
   group_by(Sample) %>%
   mutate(Percentage = Abundance / sum(Abundance) * 100)
 
-# Bar plot of species composition
-bar_plot <- ggplot(species_percent, aes(x = Sample, y = Percentage, fill = Species)) +
+# one way to visualise spp compoisition data
+bar_plot <- 
+  ggplot(species_percent, aes(x = Sample, y = Percentage, fill = Species)) +
   geom_bar(stat = "identity", position = "stack") +
   theme_minimal() +
   labs(y = "Species Composition (%)", x = "Samples", title = "Species Composition")
 
-# Prepare data for NMDS (remove Sample column)
+# remove the sample name
 nmds_data <- species_data[, -1]
 
-# Perform NMDS with Bray-Curtis distance
 nmds_result <- metaMDS(nmds_data, distance = "bray", k = 2, trymax = 100)
 
-# Extract NMDS coordinates
 nmds_scores <- as.data.frame(nmds_result$points)
 nmds_scores$Sample <- species_data$Sample  # Add sample labels
 
-# NMDS plot
-nmds_plot <- ggplot(nmds_scores, aes(x = MDS1, y = MDS2, label = Sample)) +
+nmds_plot <- 
+  ggplot(nmds_scores, aes(x = MDS1, y = MDS2, label = Sample)) +
   geom_point(color = "darkgreen", size = 3) +
   geom_text(vjust = -1, hjust = 0.5, color = "darkblue") +
   theme_minimal() +
@@ -260,7 +261,7 @@ library(patchwork)
 bar_plot + nmds_plot
 ```
 
-## Some statistical method 
+## PERMANOVA for multivariate 
 
 ```{r}
 
