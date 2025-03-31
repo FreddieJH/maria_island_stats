@@ -217,6 +217,7 @@ ggplot(summary_data, aes(x = MPA, y = mean_biomass)) +
 #| error: false
 #| warning: false
 #| include: false
+#| output: false
 
 library(vegan)
 
