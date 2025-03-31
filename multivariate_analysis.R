@@ -64,6 +64,7 @@ pred_vars_clean <-
 # Data visualisation ===========================================================
 
 # convert to a numeric matrix
+# maybe you wan to transform to reduce the influence of very abundant species
 abundance_matrix <- 
   resp_vars_clean %>% 
   # mutate_if(is.numeric, log1p) %>% # log(x+1) transformation
@@ -72,6 +73,7 @@ abundance_matrix <-
 
 # Calculating distance
 # Bray curtis dissimilarity: https://www.statisticshowto.com/bray-curtis-dissimilarity/
+# Bray Curtis is very common for ecological abundance data like this 
 distance_matrix <- 
   abundance_matrix %>% 
   vegdist(method = "bray")
@@ -130,9 +132,9 @@ vec_env <- envfit(nmds, pred_vars_clean %>% column_to_rownames("sample"), na.rm 
 vec_spp <- envfit(nmds, resp_vars_clean %>% column_to_rownames("sample"), na.rm = TRUE)
 
 sig_vectors <- 
-  scores(vec_env, display = "vectors") %>% 
+  scores(vec_spp, display = "vectors") %>% 
   as_tibble(rownames = "species") %>% 
-  mutate(pval = vec_env$vectors$pvals) %>% 
+  mutate(pval = vec_spp$vectors$pvals) %>% 
   filter(pval < 0.05)
 
 nmds_vals %>% 

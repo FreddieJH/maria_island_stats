@@ -77,7 +77,7 @@ Write down your main hypothesis or hypotheses
 - Identify the <span style="color:red;">predictor</span> and <span style="color:blue;">response</span> variables
 :::
 
-## <span style="display:block; margin-bottom: 1em;">Univariate vs. multivariate analyses</span>
+<span style="display:block; margin-bottom: 1em;">Univariate vs. multivariate analyses</span>
 
 ::: {.columns}
 :::: {.column width="50%"}
@@ -214,6 +214,9 @@ ggplot(summary_data, aes(x = MPA, y = mean_biomass)) +
 
 ```{r}
 #| echo: false
+#| error: false
+#| warning: false
+#| include: false
 
 library(vegan)
 
@@ -260,6 +263,11 @@ nmds_plot <-
 library(patchwork)
 bar_plot + nmds_plot
 ```
+
+```{r}
+bar_plot + nmds_plot
+```
+
 
 ## PERMANOVA for multivariate 
 
