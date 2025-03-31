@@ -1,0 +1,293 @@
+---
+title: "Useful statistics for Marine Ecology"
+author: "Freddie Heather"
+date: "01-April-2025"
+format: 
+  revealjs:
+    theme: white
+    slide-number: true
+    progress: true
+    transition: fade
+    toc: false
+    footer: "KSM308 Marine Ecology 2025"
+execute: 
+  echo: false
+---
+
+
+
+# Today's session
+
+
+<style>
+.reveal {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 1.8em;
+}
+.reveal h1, .reveal h2, .reveal h3 {
+  color: #003049;
+}
+.reveal img {
+  border-radius: 10px;
+  box-shadow: 2px 2px 8px #ccc;
+}
+.callout.callout-style-default .callout-body {
+    font-size: 1.0rem;
+}
+</style>
+
+Pre-R
+
+1. What kind of data do you have? (Univariate vs. Multivariate)
+2. What's your hypothesis?
+3. How would we test the hypothesis?
+
+In R
+
+3. Visualisation methods
+4. Statistical tests
+5. Where to look for help
+
+---
+
+# Forming your hypothesis {.section}
+
+## Developing a hypothesis
+
+- If you have already collected your data, you hopefully already have some idea on the hypothesis that you wanted to test.
+- Examples: 
+  - Hypothesis 1: I expect greater biomass inside than outside of the MPA
+  - Hypothesis 2: Temperature is changing the community composition
+
+::: {.callout-tip icon=false}
+# What's your hypothesis?
+Write down your main hypothesis or hypotheses 
+:::
+
+## What data would you need to answer your question?
+
+- What are your <span style="color:red;">predictor</span> variable(s) and your <span style="color:blue;">response</span> variable(s) for each hypothesis?
+- Example: 
+  - Hypothesis = MPA status impacts site biomass
+  - Data needed = <span style="color:red;">site MPA status</span> (fished/unfished, predictor variable), <span style="color:blue;">site-level biomass </span>(kg, response variable)
+
+::: {.callout-tip icon=false}
+# What data do you need?
+- For each of your hypotheses, write down what data you would need to test the hypothesis. 
+- Identify the <span style="color:red;">predictor</span> and <span style="color:blue;">response</span> variables
+:::
+
+## <span style="display:block; margin-bottom: 1em;">Univariate vs. multivariate analyses</span>
+
+::: {.columns}
+:::: {.column width="50%"}
+### Univariate 
+One <span style="color:blue;">response</span> variable. E.g.,:
+
+- biomass (kg)
+- species richness (# species)
+- total density (# individuals per unit area)
+::::
+
+:::: {.column width="50%"}
+### Multivariate 
+<span style="color:blue;">Response</span> variable is not a univariate value. E.g.,:
+
+- community composition
+::::
+:::
+
+::: {.callout-tip icon=false}
+# Type of analysis?
+For each hypothesis, will you be considering univariate or multivariate analyses?
+:::
+
+## Consider your desired plots
+
+
+![](plots.png){fig-align="center"}
+
+---
+
+# Example hypothesis
+
+> *Greater fish biomass inside than outside an MPA*
+
+---
+
+## Input data
+
+![](excel_data.png){fig-align="center"}
+
+---
+
+## Data manipulation
+
+![](excel_pivot.png){fig-align="center"}
+
+---
+
+## Data visualisation
+
+```{r}
+#| echo: false
+
+library(tidyverse)
+
+example_data <- tibble::tibble(
+  Date = c("2-Jan", "2-Jan", "2-Jan", "3-Jan", "3-Jan", "3-Jan", "4-Jan", "4-Jan", "4-Jan",
+           "2-Jan", "2-Jan", "2-Jan", "3-Jan", "3-Jan", "3-Jan", "4-Jan", "4-Jan", "4-Jan"),
+  MPA = c("yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes",
+          "no", "no", "no", "no", "no", "no", "no", "no", "no"),
+  size_class = c(2.5, 5, 7.5, 2.5, 5, 7.5, 2.5, 5, 7.5, 
+                 2.5, 5, 7.5, 2.5, 5, 7.5, 2.5, 5, 7.5),
+  N = c(202, 97, 87, 55, 330, 698, 190, 50, 10,
+        186, 22, 244, 696, 373, 120, 100, 90, 88),
+  Richness = c(16, 20, 7, 13, 12, 13, 10, 3, 1,
+               12, 9, 8, 10, 14, 8, 11, 2, 3)
+)
+
+# Summarising data before plotting
+summary_data <- 
+  example_data |> 
+  drop_na() |> 
+  mutate(weight = 0.01 * (size_class^3)) |> 
+  mutate(biomass = weight * N) |> 
+  summarise(total_biomass = sum(biomass), .by = c(Date, MPA)) |> 
+  summarise(mean_biomass = mean(total_biomass), 
+            sd_biomass = sd(total_biomass),
+            n = n(),
+            .by = c(MPA)) |> 
+  mutate(se = sd_biomass / sqrt(n))
+
+
+ggplot(summary_data, aes(x = MPA, y = mean_biomass)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = mean_biomass - se, ymax = mean_biomass + se), width = 0.2) +
+  theme_classic() +
+  labs(y = "Mean site biomass")
+
+
+```
+
+## Some statistical method 
+
+```{r}
+
+y_star <- max(summary_data$mean_biomass + summary_data$se) * 1.1
+y_line <- y_star + max(summary_data$se) * 0.1
+
+ggplot(summary_data, aes(x = MPA, y = mean_biomass)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = mean_biomass - se, ymax = mean_biomass + se), width = 0.2) +
+  geom_segment(aes(x = 1, xend = 2, y = y_star, yend = y_star), linewidth = 0.5, data = tibble()) + 
+  geom_text(aes(x = 1.5, y = y_line, label = "***"), size = 6, data = tibble()) +
+  theme_classic() +
+  labs(y = "Mean site biomass")
+```
+
+
+## Consideration of statistics
+
+- What statistical test would you use to test this hypothesis?
+- Univariate data (I am estimating biomass) - 
+- For both numerical vs. numerical, and numerical vs. categorical: we will use a linear regression approach (forget t-tests and ANOVAs)
+- I will now run through the code for various univariate analysis that you might need
+
+
+---
+
+# Example hypothesis 2
+
+> *MPA status significantlt alters the ecological community*
+
+---
+
+## Input data
+
+![](excel_data_multivar.png){fig-align="center"}
+
+---
+
+## Data visualisation
+
+```{r}
+#| echo: false
+# Set seed for reproducibility
+set.seed(123)
+
+# Fake species composition data (7 samples, 6 species)
+species_data <- data.frame(
+  Sample = paste0("S", 1:10),
+  Species1 = sample(10:50, 10, replace = TRUE),
+  Species2 = sample(20:70, 10, replace = TRUE),
+  Species3 = sample(5:40, 10, replace = TRUE),
+  Species4 = sample(5:30, 10, replace = TRUE),
+  Species5 = sample(1:20, 10, replace = TRUE),
+  Species6 = sample(15:60, 10, replace = TRUE)
+)
+
+# Convert to percentage composition
+species_percent <- species_data %>%
+  pivot_longer(cols = -Sample, names_to = "Species", values_to = "Abundance") %>%
+  group_by(Sample) %>%
+  mutate(Percentage = Abundance / sum(Abundance) * 100)
+
+# Bar plot of species composition
+bar_plot <- ggplot(species_percent, aes(x = Sample, y = Percentage, fill = Species)) +
+  geom_bar(stat = "identity", position = "stack") +
+  theme_minimal() +
+  labs(y = "Species Composition (%)", x = "Samples", title = "Species Composition")
+
+# Prepare data for NMDS (remove Sample column)
+nmds_data <- species_data[, -1]
+
+# Perform NMDS with Bray-Curtis distance
+nmds_result <- metaMDS(nmds_data, distance = "bray", k = 2, trymax = 100)
+
+# Extract NMDS coordinates
+nmds_scores <- as.data.frame(nmds_result$points)
+nmds_scores$Sample <- species_data$Sample  # Add sample labels
+
+# NMDS plot
+nmds_plot <- ggplot(nmds_scores, aes(x = MDS1, y = MDS2, label = Sample)) +
+  geom_point(color = "darkgreen", size = 3) +
+  geom_text(vjust = -1, hjust = 0.5, color = "darkblue") +
+  theme_minimal() +
+  labs(x = "NMDS1", y = "NMDS2", title = "Non-Metric Multidimensional Scaling (NMDS)")
+
+library(patchwork)
+bar_plot + nmds_plot
+```
+
+## Some statistical method 
+
+```{r}
+
+elps_center <- 
+  nmds_scores %>% 
+  mutate(grouping = case_when(Sample %in% c("S4", "S9", "S10", "S7") ~ "group1", 
+         TRUE ~ "group2")) |> 
+  summarise(MDS1 = mean(MDS1), 
+            MDS2 = mean(MDS2), 
+            .by = grouping) 
+nmds_scores |> 
+ mutate(grouping = case_when(Sample %in% c("S4", "S9", "S10", "S7") ~ "group1", 
+         TRUE ~ "group2")) |> 
+  ggplot(aes(x = MDS1, y = MDS2,  col = grouping)) +
+  geom_point(size = 3) +
+  geom_text(aes(label = Sample), vjust = -1, hjust = 0.5, color = "darkblue") +
+  theme_minimal() +
+  labs(x = "NMDS1", y = "NMDS2", title = "Non-Metric Multidimensional Scaling (NMDS)") +
+  stat_ellipse(level = 0.95) + # adds ellipses (level default = 0.95)
+  geom_point(data = elps_center, size = 5, pch = 21)
+
+```
+
+
+## Consideration of statistics
+
+- What statistical test would you use to test this hypothesis?
+- Multivariate data (I am estimating species composition) - 
+- I will use a "PERMANOVA" approach
+- I will now run through the code for the multivariate analysis

@@ -1,7 +1,7 @@
 # About ========================================================================
 
 # Title: Multivariate analysis for Maria Island Data (KSM308)
-# Date: March 2024
+# Date: April 2025
 # Author: Freddie Heather
 
 # Imports data
@@ -74,7 +74,7 @@ distance_matrix <-
 
 set.seed(1) # so gives same result each time (because nmds includes randomness)
 nmds <- metaMDS(distance_matrix)
-# stress = 0.1518329 
+# stress = approx 0.1518329 
 
 # data for plotting
 nmds_vals <- 
