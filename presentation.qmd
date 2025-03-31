@@ -297,6 +297,6 @@ nmds_scores |>
 ## Consideration of multivariate
 
 - What statistical test would you use to test this hypothesis?
-- Multivariate data (I am estimating species composition) - 
+- Multivariate data (I am estimating species composition)
 - I will use a "PERMANOVA" approach
 - I will now run through the code for the multivariate analysis
