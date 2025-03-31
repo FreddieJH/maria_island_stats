@@ -286,7 +286,7 @@ nmds_scores |>
 ```
 
 
-## Consideration of statistics
+## Consideration of multivariate
 
 - What statistical test would you use to test this hypothesis?
 - Multivariate data (I am estimating species composition) - 
