@@ -15,7 +15,7 @@
 
 # Important: 
 # 1. Make sure you are working inside an R project
-# 2. Make sure the datafiles "multivariate_analysis.R" and "predictor_table.csv" are within your project working directory
+# 2. Make sure the datafiles "multivariate_response_vars.csv" and "predictor_table.csv" are within your project working directory
 
 # Packages =====================================================================
 
@@ -80,7 +80,7 @@ distance_matrix <-
 
 set.seed(1) # so gives same result each time (because nmds includes randomness)
 nmds <- metaMDS(distance_matrix)
-# stress = approx 0.15
+# stress = 0.15
 
 # data for plotting
 nmds_vals <- 
@@ -105,7 +105,7 @@ nmds_vals %>%
   geom_point(
     # aes(pch = as.character(Depth)) # change shape of point
   ) +
-  stat_ellipse(level = 0.9) + # adds ellipses (level default = 0.95)
+  stat_ellipse(level = 0.95) + # adds ellipses (level default = 0.95)
   geom_point(data = elps_center, size = 5)
 
 # Detecting statistical difference =============================================

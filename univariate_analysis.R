@@ -11,7 +11,7 @@
 
 # Important: 
 # 1. Make sure you are working inside an R project
-# 2. Make sure the datafiles "multivariate_analysis.R" and "predictor_table.csv" are within your project working directory
+# 2. Make sure the datafiles "univariate_analysis.R" and "predictor_table.csv" are within your project working directory
 
 # Packages =====================================================================
 
@@ -126,6 +126,9 @@ rich_depth_mod %>% performance::check_model() # looks good
 exp(2.64983)
 exp(2.64983 + 1*-0.06428) # depth = 1m
 exp(2.64983 + 2*-0.06428) # depth = 2m
+
+exp(predict(rich_depth_mod, newdata = list(Depth = 2)))
+predict(rich_depth_mod, newdata = list(Depth = 2), type = "response")
 
 # Good info on interpreting poisson model output
 # https://stats.stackexchange.com/questions/11096/how-to-interpret-coefficients-in-a-poisson-regression
