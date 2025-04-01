@@ -77,7 +77,7 @@ Write down your main hypothesis or hypotheses
 - Identify the <span style="color:red;">predictor</span> and <span style="color:blue;">response</span> variables
 :::
 
-<span style="display:block; margin-bottom: 1em;">Univariate vs. multivariate analyses</span>
+## Univariate vs. multivariate analyses 
 
 ::: {.columns}
 :::: {.column width="50%"}
