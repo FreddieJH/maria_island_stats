@@ -12,4 +12,4 @@ How to run:
 
 
 Presentation slides can be viewed by downloading the presentation.html file, or at: 
-https://html-preview.github.io/?url=https://github.com/FreddieJH/maria_island_stats/blob/main/presentation.html#/consideration-of-statistics
+https://freddiejh.github.io/maria_island_stats/presentation.html
