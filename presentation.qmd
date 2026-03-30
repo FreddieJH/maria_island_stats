@@ -1,7 +1,6 @@
 ---
 title: "Useful statistics for Marine Ecology"
 author: "Freddie Heather"
-date: "01-April-2025"
 format: 
   revealjs:
     theme: white
@@ -9,7 +8,7 @@ format:
     progress: true
     transition: fade
     toc: false
-    footer: "KSM308 Marine Ecology 2025"
+    footer: "KSM308 Marine Ecology - Statistics"
 execute: 
   echo: false
 ---
@@ -114,12 +113,14 @@ For each hypothesis, will you be considering univariate or multivariate analyses
 
 
 ## Input data
+H1: *Greater fish biomass inside than outside an MPA*
 
 ![](excel_data.png){fig-align="center"}
 
 ---
 
 ## Data manipulation
+H1: *Greater fish biomass inside than outside an MPA*
 
 ![](excel_pivot.png){fig-align="center"}
 
@@ -133,35 +134,111 @@ For each hypothesis, will you be considering univariate or multivariate analyses
 library(tidyverse)
 
 example_data <- tibble::tibble(
-  Date = c("2-Jan", "2-Jan", "2-Jan", "3-Jan", "3-Jan", "3-Jan", "4-Jan", "4-Jan", "4-Jan",
-           "2-Jan", "2-Jan", "2-Jan", "3-Jan", "3-Jan", "3-Jan", "4-Jan", "4-Jan", "4-Jan"),
-  MPA = c("yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes", "yes",
-          "no", "no", "no", "no", "no", "no", "no", "no", "no"),
-  size_class = c(2.5, 5, 7.5, 2.5, 5, 7.5, 2.5, 5, 7.5, 
-                 2.5, 5, 7.5, 2.5, 5, 7.5, 2.5, 5, 7.5),
-  N = c(202, 97, 87, 55, 330, 698, 190, 50, 10,
-        186, 22, 244, 696, 373, 120, 100, 90, 88),
-  Richness = c(16, 20, 7, 13, 12, 13, 10, 3, 1,
-               12, 9, 8, 10, 14, 8, 11, 2, 3)
+  Date = c(
+    "2-Jan",
+    "2-Jan",
+    "2-Jan",
+    "3-Jan",
+    "3-Jan",
+    "3-Jan",
+    "4-Jan",
+    "4-Jan",
+    "4-Jan",
+    "2-Jan",
+    "2-Jan",
+    "2-Jan",
+    "3-Jan",
+    "3-Jan",
+    "3-Jan",
+    "4-Jan",
+    "4-Jan",
+    "4-Jan"
+  ),
+  MPA = c(
+    "yes",
+    "yes",
+    "yes",
+    "yes",
+    "yes",
+    "yes",
+    "yes",
+    "yes",
+    "yes",
+    "no",
+    "no",
+    "no",
+    "no",
+    "no",
+    "no",
+    "no",
+    "no",
+    "no"
+  ),
+  size_class = c(
+    2.5,
+    5,
+    7.5,
+    2.5,
+    5,
+    7.5,
+    2.5,
+    5,
+    7.5,
+    2.5,
+    5,
+    7.5,
+    2.5,
+    5,
+    7.5,
+    2.5,
+    5,
+    7.5
+  ),
+  N = c(
+    202,
+    97,
+    87,
+    55,
+    330,
+    698,
+    190,
+    50,
+    10,
+    186,
+    22,
+    244,
+    696,
+    373,
+    120,
+    100,
+    90,
+    88
+  ),
+  Richness = c(16, 20, 7, 13, 12, 13, 10, 3, 1, 12, 9, 8, 10, 14, 8, 11, 2, 3)
 )
 
 # Summarising data before plotting
-summary_data <- 
-  example_data |> 
-  drop_na() |> 
-  mutate(weight = 0.01 * (size_class^3)) |> 
-  mutate(biomass = weight * N) |> 
-  summarise(total_biomass = sum(biomass), .by = c(Date, MPA)) |> 
-  summarise(mean_biomass = mean(total_biomass), 
-            sd_biomass = sd(total_biomass),
-            n = n(),
-            .by = c(MPA)) |> 
+summary_data <-
+  example_data |>
+  drop_na() |>
+  mutate(weight = 0.01 * (size_class^3)) |>
+  mutate(biomass = weight * N) |>
+  summarise(total_biomass = sum(biomass), .by = c(Date, MPA)) |>
+  summarise(
+    mean_biomass = mean(total_biomass),
+    sd_biomass = sd(total_biomass),
+    n = n(),
+    .by = c(MPA)
+  ) |>
   mutate(se = sd_biomass / sqrt(n))
 
 
 ggplot(summary_data, aes(x = MPA, y = mean_biomass)) +
   geom_col() +
-  geom_errorbar(aes(ymin = mean_biomass - se, ymax = mean_biomass + se), width = 0.2) +
+  geom_errorbar(
+    aes(ymin = mean_biomass - se, ymax = mean_biomass + se),
+    width = 0.2
+  ) +
   theme_classic() +
   labs(y = "Mean site biomass")
 
@@ -177,9 +254,20 @@ y_line <- y_star + max(summary_data$se) * 0.1
 
 ggplot(summary_data, aes(x = MPA, y = mean_biomass)) +
   geom_col() +
-  geom_errorbar(aes(ymin = mean_biomass - se, ymax = mean_biomass + se), width = 0.2) +
-  geom_segment(aes(x = 1, xend = 2, y = y_star, yend = y_star), linewidth = 0.5, data = tibble()) + 
-  geom_text(aes(x = 1.5, y = y_line, label = "***"), size = 6, data = tibble()) +
+  geom_errorbar(
+    aes(ymin = mean_biomass - se, ymax = mean_biomass + se),
+    width = 0.2
+  ) +
+  geom_segment(
+    aes(x = 1, xend = 2, y = y_star, yend = y_star),
+    linewidth = 0.5,
+    data = tibble()
+  ) +
+  geom_text(
+    aes(x = 1.5, y = y_line, label = "***"),
+    size = 6,
+    data = tibble()
+  ) +
   theme_classic() +
   labs(y = "Mean site biomass")
 
@@ -189,7 +277,7 @@ ggplot(summary_data, aes(x = MPA, y = mean_biomass)) +
 ## Univar statistics
 
 - What statistical test would you use to test this hypothesis?
-- Univariate data (I am estimating biomass) - 
+- Univariate data (I am estimating biomass) 
 - For both numerical vs. numerical, and numerical vs. categorical: we will use a linear regression approach (forget t-tests and ANOVAs)
 - I will now run through the code for various univariate analysis that you might need
 
@@ -203,13 +291,14 @@ ggplot(summary_data, aes(x = MPA, y = mean_biomass)) +
 ---
 
 ## Input data
+H2: *MPA status significantly alters the ecological community*
 
 ![](excel_data_multivar.png){fig-align="center"}
 
 ---
 
 ## Multivar data visualisation
-
+H2: *MPA status significantly alters the ecological community*
 ```{r}
 #| echo: false
 #| error: false
@@ -231,18 +320,26 @@ species_data <- data.frame(
   Species6 = sample(15:60, 10, replace = TRUE)
 )
 
-species_percent <- 
+species_percent <-
   species_data %>%
-  pivot_longer(cols = -Sample, names_to = "Species", values_to = "Abundance") %>%
+  pivot_longer(
+    cols = -Sample,
+    names_to = "Species",
+    values_to = "Abundance"
+  ) %>%
   group_by(Sample) %>%
   mutate(Percentage = Abundance / sum(Abundance) * 100)
 
 # one way to visualise spp compoisition data
-bar_plot <- 
+bar_plot <-
   ggplot(species_percent, aes(x = Sample, y = Percentage, fill = Species)) +
   geom_bar(stat = "identity", position = "stack") +
   theme_minimal() +
-  labs(y = "Species Composition (%)", x = "Samples", title = "Species Composition")
+  labs(
+    y = "Species Composition (%)",
+    x = "Samples",
+    title = "Species Composition"
+  )
 
 # remove the sample name
 nmds_data <- species_data[, -1]
@@ -250,14 +347,18 @@ nmds_data <- species_data[, -1]
 nmds_result <- metaMDS(nmds_data, distance = "bray", k = 2, trymax = 100)
 
 nmds_scores <- as.data.frame(nmds_result$points)
-nmds_scores$Sample <- species_data$Sample  # Add sample labels
+nmds_scores$Sample <- species_data$Sample # Add sample labels
 
-nmds_plot <- 
+nmds_plot <-
   ggplot(nmds_scores, aes(x = MDS1, y = MDS2, label = Sample)) +
   geom_point(color = "darkgreen", size = 3) +
   geom_text(vjust = -1, hjust = 0.5, color = "darkblue") +
   theme_minimal() +
-  labs(x = "NMDS1", y = "NMDS2", title = "Non-Metric Multidimensional Scaling (NMDS)")
+  labs(
+    x = "NMDS1",
+    y = "NMDS2",
+    title = "Non-Metric Multidimensional Scaling (NMDS)"
+  )
 
 ```
 
@@ -268,24 +369,34 @@ bar_plot + nmds_plot
 
 
 ## PERMANOVA for multivariate 
-
+H2: *MPA status significantly alters the ecological community*
 ```{r}
 
-elps_center <- 
-  nmds_scores %>% 
-  mutate(grouping = case_when(Sample %in% c("S4", "S9", "S10", "S7") ~ "group1", 
-         TRUE ~ "group2")) |> 
-  summarise(MDS1 = mean(MDS1), 
-            MDS2 = mean(MDS2), 
-            .by = grouping) 
-nmds_scores |> 
- mutate(grouping = case_when(Sample %in% c("S4", "S9", "S10", "S7") ~ "group1", 
-         TRUE ~ "group2")) |> 
-  ggplot(aes(x = MDS1, y = MDS2,  col = grouping)) +
+elps_center <-
+  nmds_scores %>%
+  mutate(
+    grouping = case_when(
+      Sample %in% c("S4", "S9", "S10", "S7") ~ "group1",
+      TRUE ~ "group2"
+    )
+  ) |>
+  summarise(MDS1 = mean(MDS1), MDS2 = mean(MDS2), .by = grouping)
+nmds_scores |>
+  mutate(
+    grouping = case_when(
+      Sample %in% c("S4", "S9", "S10", "S7") ~ "group1",
+      TRUE ~ "group2"
+    )
+  ) |>
+  ggplot(aes(x = MDS1, y = MDS2, col = grouping)) +
   geom_point(size = 3) +
   geom_text(aes(label = Sample), vjust = -1, hjust = 0.5, color = "darkblue") +
   theme_minimal() +
-  labs(x = "NMDS1", y = "NMDS2", title = "Non-Metric Multidimensional Scaling (NMDS)") +
+  labs(
+    x = "NMDS1",
+    y = "NMDS2",
+    title = "Non-Metric Multidimensional Scaling (NMDS)"
+  ) +
   stat_ellipse(level = 0.95) + # adds ellipses (level default = 0.95)
   geom_point(data = elps_center, size = 5, pch = 21)
 

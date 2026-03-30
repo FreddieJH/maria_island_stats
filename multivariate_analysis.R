@@ -1,7 +1,6 @@
 # About ========================================================================
 
 # Title: Multivariate analysis for Maria Island Data (KSM308)
-# Date: April 2025
 # Author: Freddie Heather
 
 # Imports data
