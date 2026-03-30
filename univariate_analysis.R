@@ -93,9 +93,9 @@ clean_data %>%
 # STEP 3: picking a suitable model ---------------------------------------------
 
 # Framework:
-# glm_obj <- 
-#   glm(formula = {RESPONSE_VAR} ~ {PREDICTOR_VAR1} + {PREDICTOR_VAR2}, 
-#       data = clean_data, 
+# glm_obj <-
+#   glm(formula = {RESPONSE_VAR} ~ {PREDICTOR_VAR1} + {PREDICTOR_VAR2},
+#       data = clean_data,
 #       family = "{CHOICE_OF_DISTRIBUTION}")
 
 rich_depth_mod <-
@@ -132,7 +132,6 @@ predict(rich_depth_mod, newdata = list(Depth = 2), type = "response")
 
 # Good info on interpreting poisson model output
 # https://stats.stackexchange.com/questions/11096/how-to-interpret-coefficients-in-a-poisson-regression
-
 
 # STEP 4: plotting stats on figure ---------------------------------------------
 
@@ -188,9 +187,9 @@ clean_data %>%
 # STEP 3: picking a suitable model ---------------------------------------------
 
 # Framework:
-# glm_obj <- 
-#   glm(formula = {RESPONSE_VAR} ~ {PREDICTOR_VAR1} + {PREDICTOR_VAR2}, 
-#       data = clean_data, 
+# glm_obj <-
+#   glm(formula = {RESPONSE_VAR} ~ {PREDICTOR_VAR1} + {PREDICTOR_VAR2},
+#       data = clean_data,
 #       family = "{CHOICE_OF_DISTRIBUTION}")
 
 rich_mpa_mod <-
