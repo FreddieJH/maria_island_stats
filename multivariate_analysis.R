@@ -71,6 +71,7 @@ pred_vars_clean <-
 # maybe you wan to transform to reduce the influence of very abundant species
 abundance_matrix <-
   resp_vars_clean %>%
+  # mutate_if(is.numeric, \(x) x / 100) %>% # dealing with percentages? (from 0-100 to 0-1 range)
   # mutate_if(is.numeric, log1p) %>% # log(x+1) transformation
   column_to_rownames("sample") %>% # cannot have chr col (move to rownames)
   as.matrix()
